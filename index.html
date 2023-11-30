@@ -515,11 +515,12 @@ Inference’’.</p>
 <h2>Import data</h2>
 <p>Stamey et al. (1989) was interested in the relation between prostate
 specific antigen (PSA) and several clinical measures, including log
-cancer volume (), log prostate weight (), age, log of benign prostatic
-hyperplasia amount (), seminal vesicle invasion (), log of capsular
-penetration (), the Gleason score (), and percent of Gleason scores 4 or
-5 (). The dataset consisted of information collected from <span class="math inline">\(n=97\)</span> men who were preparing to undergo a
-radial prostatectomy.</p>
+cancer volume (lcavol), log prostate weight (lweight), age, log of
+benign prostatic hyperplasia amount (lbph), seminal vesicle invasion
+(svi), log of capsular penetration (lcp), the Gleason score (gleason),
+and percent of Gleason scores 4 or 5 (pgg45). The dataset consisted of
+information collected from <span class="math inline">\(n=97\)</span> men
+who were preparing to undergo a radial prostatectomy.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>prostate <span class="ot">&lt;-</span> <span class="fu">read_delim</span>(<span class="st">&quot;https://hastie.su.domains/ElemStatLearn/datasets/prostate.data&quot;</span>, </span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>    <span class="at">delim =</span> <span class="st">&quot;</span><span class="sc">\t</span><span class="st">&quot;</span>, <span class="at">escape_double =</span> <span class="cn">FALSE</span>, <span class="at">trim_ws =</span> <span class="cn">TRUE</span>)[,<span class="sc">-</span><span class="dv">1</span>]</span>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a></span>
