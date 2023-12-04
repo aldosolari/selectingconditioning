@@ -29,6 +29,7 @@ require("glmnet") || install.packages("glmnet")
 require("lars") || install.packages("lars")
 require("penalized") || install.packages("penalized")
 require("plotrix") || install.packages("plotrix")
+require("tidyverse") || install.packages("tidyverse")
 ```
 
 
@@ -366,3 +367,50 @@ simcov
 fcr = mean(sapply(1:nrow(PV), function(i) sum( PV[i,AS[i,]] <= myalpha )/pmax(1,sum(AS[i,])) ))
 fcr
 ```
+
+## Figure 4
+
+Expected number of rejections for four procedures defined in Section 7. Based on n = 100 hypotheses, $\alpha = 0.05$, and $10^4$ simulations.
+
+```{r, fig.width=7, message=F, warning=F, error=F, comment=NA}
+B <- 10000
+n <- 100
+alpha = 0.05
+mu=3
+set.seed(13579)
+nulls <- matrix(runif(B*n), B, n)
+alts <- pnorm(matrix(rnorm(B*n, mean=-mu), B, n))
+crit <- 1- (1-alpha)^(1/n:1)
+n1s <- 0:10
+res <- sapply(n1s, function(n1) {
+  P <- cbind(nulls[,seq_len(n-n1)], alts[, seq_len(n1)])
+  P <- do.call(rbind, apply(P, 1, sort, simplify = FALSE))
+  gate <- P[,1]/P[,2] < alpha
+  Si <- apply(P > matrix(crit, B, n, byrow=TRUE), 1, function(p) min (c(which(p), n+1))-1)
+  BH <- apply(P, 1, function(p) sum(p.adjust(p, method = "BH") < alpha))
+  Si2 <- apply((P[,-1]-P[,1])/(1-P[,1]) > matrix(crit[-1], B, n-1, byrow=TRUE), 1, function(p) min (c(which(p), n)))
+  BH2 <- apply((P[,-1]-P[,1])/(1-P[,1]), 1, function(p) sum(p.adjust(p, method = "BH") < alpha*n/(n-1)))
+  A <- P[,1]/P[,2] < alpha
+  B <- ifelse(gate, BH2+1, 0)
+  C <- P[,1] < crit[1]
+  D <- BH
+  c(A=mean(A), B=mean(B), C=mean(C), D = mean(D)) 
+})
+
+D <- as.data.frame(cbind(n1=n1s,t(res))) %>% pivot_longer(A:D, values_to = "rate", names_to = "method") %>%
+  mutate(n1=as.factor(n1))
+library(ggplot2)
+labs <- c("A: cond. sel.",
+          "B: cond. non-sel.",
+          "C: uncond. sel.",
+          "D: uncond. non-sel.")
+ggplot(D) + aes(group=method, color=method, x=n1, y=rate, linetype=method,
+                shape=method) + geom_point() + geom_line() + theme_minimal() + 
+  coord_cartesian(ylim=c(0, 2.5)) + theme(legend.position ="bottom") +
+  ylab("rejected hypotheses") + xlab("false hypotheses") +
+  scale_color_discrete(labels = labs) +
+  scale_linetype_discrete(labels = labs) +
+  scale_shape_discrete(labels = labs)
+#ggsave("inference_winner_BH.pdf",       width = 18, height = 14, units = "cm")
+```
+
